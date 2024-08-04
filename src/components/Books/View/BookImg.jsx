@@ -26,7 +26,7 @@ export const BookImg = ({ backgroundSource = true, image, bookId, style, imgStyl
   const defaultBookImg = require("../../../../assets/books/defaultBookImg.jpg")
   
   if (isLoading) {
-    return <Loader />
+    return <Loader style={styles.loader} />
   }
 
   if (isError) {
@@ -71,5 +71,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.lightGray,
     resizeMode: "cover"
+  },
+  loader: {
+    backgroundColor: "rgba(0, 0, 0, 0)"
   }
 })

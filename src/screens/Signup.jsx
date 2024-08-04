@@ -12,35 +12,35 @@ import { CustomButton } from "../components/CustomButton.jsx"
 
 export const Signup = ({ navigation }) => {
   const [email, setEmail] = useState("")
-  const [errorMail, setErrorMail] = useState("")
+  const [errorEmail, setErrorEmail] = useState("")
   const [password, setPassword] = useState("")
   const [errorPassword, setErrorPassword] = useState("")
-  const [confirmPassword, setconfirmPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [errorConfirmPassword, setErrorConfirmPassword] = useState("")
 
-  const [triggerSignUp, result] = useSignUpMutation()
+  const [triggerSignUp, { data, isSuccess }] = useSignUpMutation()
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if (result.isSuccess) {
+    if (isSuccess) {
       dispatch(
         setUser({
-          email: result.data.email,
-          idToken: result.data.idToken,
-          localId: result.data.localId
+          email: data.email,
+          idToken: data.idToken,
+          localId: data.localId
         })
       )
     }
-  }, [result])
+  }, [isSuccess, data])
   
   const onSubmit = async () => {
     try {
-      setErrorMail("")
+      setErrorEmail("")
       setErrorPassword("")
       setErrorConfirmPassword("")
 
       signupSchema.validateSync({ email, password, confirmPassword }, { abortEarly: false })
-      await triggerSignUp({ email, password, returnSecureToken: true })
+      await triggerSignUp({ email, password, returnSecureToken: true }).unwrap()
 
       navigation.navigate("Login")
       
@@ -52,11 +52,15 @@ export const Signup = ({ navigation }) => {
         bottomOffset: 72
       })
     } catch (error) {
+      if (error.data?.error?.message === "EMAIL_EXISTS") {
+        setErrorEmail("El email ya está en uso")
+      }
+      
       if (error.inner) {
         error.inner.forEach(err => {
           switch (err.path) {
             case "email":
-              setErrorMail(err.message)
+              setErrorEmail(err.message)
               break
             case "password":
               setErrorPassword(err.message)
@@ -81,7 +85,7 @@ export const Signup = ({ navigation }) => {
           <InputForm
             label={"Email"}
             onChange={setEmail}
-            error={errorMail}
+            error={errorEmail}
           />
           <InputForm
             label={"Contraseña"}
@@ -91,7 +95,7 @@ export const Signup = ({ navigation }) => {
           />
           <InputForm
             label={"Confirmar contraseña"}
-            onChange={setconfirmPassword}
+            onChange={setConfirmPassword}
             error={errorConfirmPassword}
             isSecure={true}
           />
@@ -176,7 +180,8 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline"
   },
   toastText1: {
-    fontSize: 17,
+    fontFamily: "Roboto-regular",
+    fontSize: 14,
     color: colors.darkGray
   }
 })

@@ -76,7 +76,7 @@ export const bookApi = createApi({
     postProfileImage: builder.mutation({
       query: ({ imageProfile, localId }) => ({
         url: `profileImage/${localId}.json`,
-        method: "PUT",
+        method: "PATCH",
         body: {
           image: imageProfile
         }

@@ -5,13 +5,19 @@ import * as ImagePicker from "expo-image-picker"
 import Toast from "react-native-toast-message"
 import { AntDesign, Ionicons } from "@expo/vector-icons"
 import { colors } from "../global/colors.js"
-import { useGetBookImageQuery, useGetProfileImageQuery, usePostProfileImageMutation, useDeleteProfileImageMutation } from "../services/bookService.js"
+import {
+  useGetBookImageQuery,
+  useGetProfileImageQuery,
+  usePostProfileImageMutation,
+  useDeleteProfileImageMutation
+} from "../services/bookService.js"
 import { setCameraImageBook } from "../features/Books/BooksSlice.js"
 import { setCameraImageProfile } from "../features/User/UserSlice.js"
 import { CustomButton } from "../components/CustomButton.jsx"
 
 export const ImgSelector = ({ navigation, route }) => {
   const { imgType, bookId } = route.params
+  const { localId } = useSelector(state => state.auth.value)
   const [imageData, setImageData] = useState({ profile: "", book: "" })
   const [confirmImage, setConfirmImage] = useState({ profile: false, book: false })
   const [deleteImage, setDeleteImage] = useState({ profile: false, book: false })
@@ -20,8 +26,6 @@ export const ImgSelector = ({ navigation, route }) => {
   const [triggerDeleteProfileImage] = useDeleteProfileImageMutation()
 
   const dispatch = useDispatch()
-
-  const { localId } = useSelector(state => state.auth.value)
 
   const { data: bookImageData } = useGetBookImageQuery(bookId)
   const { data: profileImageData } = useGetProfileImageQuery(localId)
@@ -120,7 +124,7 @@ export const ImgSelector = ({ navigation, route }) => {
       await triggerDeleteProfileImage(localId)
       dispatch(setCameraImageProfile(null))
     } else {
-      navigation.navigate("CustomBook", { bookId })
+      navigation.navigate("CustomBook", { bookId, deletedImage: true })
       dispatch(setCameraImageBook(""))
     }
 
@@ -315,7 +319,8 @@ const styles = StyleSheet.create({
     color: colors.red
   },
   toastText1: {
-    fontSize: 17,
+    fontFamily: "Roboto-regular",
+    fontSize: 14,
     color: colors.darkGray
   }
 })

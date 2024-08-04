@@ -1,23 +1,38 @@
 import { StyleSheet, View, Text } from "react-native"
 import { useSelector, useDispatch } from "react-redux"
+import Toast from "react-native-toast-message"
 import { colors } from "../../global/colors.js"
+import { truncateSessionTable } from "../../persistence/index.js"
 import { clearUser } from "../../features/User/UserSlice.js"
 import { ImageProfilePicker } from "../../components/Profile/ImageProfilePicker.jsx"
 import { FavoriteBooks } from "../../components/Home/FavoriteBooks.jsx"
 import { CustomButton } from "../../components/CustomButton.jsx"
 
 export const Profile = ({ navigation }) => {
-  const { localId } = useSelector(state => state.auth.value)
+  const { localId, user } = useSelector(state => state.auth.value)
   const dispatch = useDispatch()
 
   const signOut = async () => {
-    dispatch(clearUser())
+    try {
+      const response = await truncateSessionTable()
+      dispatch(clearUser())
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error al cerrar sesión",
+        text2: "Por favor, intenta de nuevo",
+        text1Style: styles.toastText,
+        text2Style: styles.toastText,
+        position: "bottom",
+        bottomOffset: 72
+      })
+    }
   }
 
   return (
     <View style={styles.container}>
       <ImageProfilePicker navigation={navigation} localId={localId}  />
-      <Text style={styles.emailText}>lu@gmail.com</Text>
+      <Text style={styles.emailText}>{user}</Text>
       <FavoriteBooks style={styles.favoritesContainer} navigation={navigation} />
       <CustomButton
         title="Cerrar sesión"
@@ -60,5 +75,10 @@ const styles = StyleSheet.create({
   btnSignOutText: {
     color: colors.red,
     textDecorationLine: "underline"
+  },
+  toastText: {
+    fontFamily: "Roboto-regular",
+    fontSize: 14,
+    color: colors.darkGray
   }
 })

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { StyleSheet, View, ScrollView } from "react-native"
-import { useDispatch } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import Toast from "react-native-toast-message"
 import { AntDesign , FontAwesome5, FontAwesome6 } from "@expo/vector-icons"
 import { colors } from "../../global/colors.js"
@@ -28,6 +28,7 @@ import { LiteraryTropesSelector } from "./LiteraryTropesSelector.jsx"
 
 export const BookForm = ({ navigation, route }) => {
   const bookId = route.params?.bookId
+  const { user } = useSelector(state => state.auth.value)
   const { data: book = [], isLoading: isLoadingBook, isError: isErrorBook } = useGetBookByIdQuery(bookId)
 
   const [image, setImage] = useState(book ? book?.image : "")
@@ -73,10 +74,10 @@ export const BookForm = ({ navigation, route }) => {
       setImage(route.params.updatedImage)
     } else if (bookImageData && bookImageData?.image) {
       setImage(bookImageData.image)
-    } else {
+    } else if (route.params?.deletedImage) {
       setImage("")
     }
-  }, [bookImageData, route.params?.updatedImage])
+  }, [bookImageData, route.params?.updatedImage, route.params?.deletedImage])
 
   const handleRatingChange = (type, value) => {
     if (type === "star") {
@@ -166,14 +167,14 @@ export const BookForm = ({ navigation, route }) => {
       const filteredBookData = filterEmptyFields(bookData)
 
       if (bookId) {
-        await putBook({ bookId, ...filteredBookData, user: "lu@gmail.com" })
-        dispatch(updateBook({ id: bookId, ...filteredBookData, user: "lu@gmail.com" }))
+        await putBook({ bookId, ...filteredBookData, user })
+        dispatch(updateBook({ id: bookId, ...filteredBookData, user }))
       
         if (image) {
           if (route.params?.updatedImage) {
             dispatch(setCameraImageBook(image))
             await triggerPostBookImage({ imageBook: image, bookId })
-          } else {
+          } else if (route.params?.deletedImage) {
             dispatch(setCameraImageBook(""))
             await triggerDeleteBookImage(bookId)
           }
@@ -189,14 +190,14 @@ export const BookForm = ({ navigation, route }) => {
           bottomOffset: 72
         })
       } else {
-        await postBook({ ...filteredBookData, user: "lu@gmail.com" })
-        dispatch(addBook({ ...filteredBookData, user: "lu@gmail.com" }))
+        await postBook({ ...filteredBookData, user })
+        dispatch(addBook({ ...filteredBookData, user }))
 
         navigation.navigate("Books")
 
         Toast.show({
           type: "info",
-          text1: `" ${book.title} "  ha sido agregado`,
+          text1: `" ${title} "  ha sido agregado`,
           text1Style: styles.toastText1,
           position: "bottom",
           bottomOffset: 72
@@ -245,12 +246,16 @@ export const BookForm = ({ navigation, route }) => {
     navigation.navigate("ImgSelector", { bookId, imgType: "book" })
   }
 
-  if (isLoadingBook || isLoadingFormats) {
-    return <Loader />
+  if (isLoadingBook) {
+    return <Loader message="Cargando..." />
   }
 
   if (isErrorBook) {
     return <Error message="Error al cargar el libro" />
+  }
+
+  if (isLoadingFormats) {
+    return <Loader />
   }
 
   if (isErrorFormats) {
@@ -385,7 +390,8 @@ const styles = StyleSheet.create({
     marginTop: 44
   },
   toastText1: {
-    fontSize: 17,
+    fontFamily: "Roboto-regular",
+    fontSize: 14,
     color: colors.darkGray
   }
 })

@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { StyleSheet, View, FlatList, Text } from "react-native"
-import { useDispatch, useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { useGetBooksByUserQuery } from "../../services/bookService.js"
@@ -11,9 +11,10 @@ import { Error } from "../../components/Error.jsx"
 import { BookItem } from "../../components/Books/BookItem.jsx"
 
 export const BooksList = ({ navigation, limit, books: externalBooks, searchResults, noBooksText = "No hay libros agregados" }) => {
-  const { data: books = [], isLoading, isError } = useGetBooksByUserQuery("lu@gmail.com")
-  const dispatch = useDispatch()
+  const { user } = useSelector(state => state.auth.value)
   const booksFromState = useSelector(state => state.books.value)
+  const { data: books = [], isLoading, isError } = useGetBooksByUserQuery(user)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const booksString = JSON.stringify(books)
@@ -76,7 +77,7 @@ export const BooksList = ({ navigation, limit, books: externalBooks, searchResul
   }
   
   if (isLoading) {
-    return <Loader />
+    return <Loader message="Cargando..." />
   }
 
   if (isError) {
@@ -110,7 +111,8 @@ export const BooksList = ({ navigation, limit, books: externalBooks, searchResul
 
 const styles = StyleSheet.create({
   listContainer: {
-    flex: 1
+    flex: 1,
+    backgroundColor: colors.black
   },
   noBooksText: {
     fontSize: 18,

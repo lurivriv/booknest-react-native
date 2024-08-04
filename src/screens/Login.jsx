@@ -2,7 +2,9 @@ import { useState, useEffect } from "react"
 import { StyleSheet, View, Text, Image } from "react-native"
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view"
 import { useDispatch } from "react-redux"
+import Toast from "react-native-toast-message"
 import { colors } from "../global/colors.js"
+import { insertSession } from "../persistence/index.js"
 import { useSignInMutation } from "../services/authService.js"
 import { setUser } from "../features/User/UserSlice.js"
 import { loginSchema } from "../validations/sessionSchema.js"
@@ -11,38 +13,59 @@ import { CustomButton } from "../components/CustomButton.jsx"
 
 export const Login = ({ navigation }) => {
   const [email, setEmail] = useState("")
-  const [errorMail, setErrorMail] = useState("")
+  const [errorEmail, setErrorEmail] = useState("")
   const [password, setPassword] = useState("")
   const [errorPassword, setErrorPassword] = useState("")
 
-  const [triggerSignIn, result] = useSignInMutation()
+  const [triggerSignIn, { data, isSuccess }] = useSignInMutation()
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if (result.isSuccess) {
-      dispatch(
-        setUser({
-          email: result.data.email,
-          idToken: result.data.idToken,
-          localId: result.data.localId
+    if (data && isSuccess) {
+      insertSession({
+        email: data.email,
+        token: data.idToken,
+        localId: data.localId
+      }).then((response) => {
+        dispatch(
+          setUser({
+            email: data.email,
+            idToken: data.idToken,
+            localId: data.localId
+          })
+        )
+      }).catch(err => {
+        Toast.show({
+          type: "error",
+          text1: "Error al iniciar sesión",
+          text2: "Por favor, intenta de nuevo",
+          text1Style: styles.toastText,
+          text2Style: styles.toastText,
+          position: "bottom",
+          bottomOffset: 72
         })
-      )
+      })
     }
-  }, [result])
+  }, [isSuccess, data])
 
   const onSubmit = async () => {
     try {
-      setErrorMail("")
+      setErrorEmail("")
       setErrorPassword("")
 
       loginSchema.validateSync({ email, password }, { abortEarly: false })
-      await triggerSignIn({ email, password, returnSecureToken: true })
+      await triggerSignIn({ email, password, returnSecureToken: true }).unwrap()
     } catch (error) {
+      if (error.data?.error?.message === "INVALID_LOGIN_CREDENTIALS") {
+        setErrorEmail("Email o contraseña incorrectos")
+        setErrorPassword("Email o contraseña incorrectos")
+      }
+      
       if (error.inner) {
         error.inner.forEach(err => {
           switch (err.path) {
             case "email":
-              setErrorMail(err.message)
+              setErrorEmail(err.message)
               break
             case "password":
               setErrorPassword(err.message)
@@ -64,7 +87,7 @@ export const Login = ({ navigation }) => {
           <InputForm
             label={"Email"}
             onChange={setEmail}
-            error={errorMail}
+            error={errorEmail}
           />
           <InputForm
             label={"Contraseña"}
@@ -151,5 +174,10 @@ const styles = StyleSheet.create({
   subSignupBtnText: {
     color: colors.skyBlue,
     textDecorationLine: "underline"
+  },
+  toastText: {
+    fontFamily: "Roboto-regular",
+    fontSize: 14,
+    color: colors.darkGray
   }
 })

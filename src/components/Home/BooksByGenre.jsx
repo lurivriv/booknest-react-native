@@ -1,9 +1,11 @@
 import { View } from "react-native"
+import { useSelector } from "react-redux"
 import { useGetBooksByUserQuery } from "../../services/bookService.js"
 import { ScrollHorizontalBooksList } from "./ScrollHorizontalBooksList.jsx"
 
 export const BooksByGenre = ({ navigation }) => {
-  const { data: books = [] } = useGetBooksByUserQuery("lu@gmail.com")
+  const { user } = useSelector(state => state.auth.value)
+  const { data: books = [] } = useGetBooksByUserQuery(user)
 
   const filterBooksByGenre = books.reduce((acc, book) => {
     (book.genres || []).forEach(genre => {

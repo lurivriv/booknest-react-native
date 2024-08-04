@@ -40,7 +40,7 @@ export const BookDetail = ({ navigation, route }) => {
   }
 
   if (isLoading) {
-    return <Loader />
+    return <Loader message="Cargando..." />
   }
 
   if (isError) {
@@ -61,10 +61,12 @@ export const BookDetail = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: colors.black
   },
   toastText1: {
-    fontSize: 17,
+    fontFamily: "Roboto-regular",
+    fontSize: 14,
     color: colors.darkGray
   }
 })

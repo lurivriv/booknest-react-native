@@ -1,17 +1,19 @@
 import { useState, useEffect, useCallback } from "react"
 import { StyleSheet, ScrollView, View, Text } from "react-native"
+import { useSelector } from "react-redux"
 import { colors } from "../../global/colors.js"
 import { useGetBooksByUserQuery } from "../../services/bookService.js"
 import { Search } from "../../components/Search.jsx"
 import { BooksList } from "../../screens/Books/BooksList.jsx"
 
 export const FavoriteBooksList = ({ navigation }) => {
+  const { user } = useSelector(state => state.auth.value)
   const [keyword, setKeyword] = useState("")
   const [result, setResult] = useState("")
   const [error, setError] = useState("")
   const [favoritesBooks, setFavoritesBooks] = useState([])
 
-  const { data: books = [], isLoading } = useGetBooksByUserQuery("lu@gmail.com")
+  const { data: books = [], isLoading } = useGetBooksByUserQuery(user)
 
   useEffect(() => {
     if (!isLoading) {

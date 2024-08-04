@@ -171,7 +171,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.darkGray
   },
   toastText1: {
-    fontSize: 17,
+    fontFamily: "Roboto-regular",
+    fontSize: 14,
     color: colors.darkGray
   },
   simpleViewContainer: {

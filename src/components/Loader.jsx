@@ -1,11 +1,11 @@
 import { StyleSheet, View, Text, ActivityIndicator } from "react-native"
 import { colors } from "../global/colors.js"
 
-export const Loader = () => {
+export const Loader = ({ style, message }) => {
   return (
-    <View style={styles.loadingContainer}>
+    <View style={[styles.loadingContainer, style]}>
       <ActivityIndicator size="large" color={colors.skyBlue} />
-      <Text style={styles.loadingText}>Cargando...</Text>
+      <Text style={styles.loadingText}>{message}</Text>
     </View>
   )
 }

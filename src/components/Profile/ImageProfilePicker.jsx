@@ -24,7 +24,7 @@ export const ImageProfilePicker = ({ navigation, localId }) => {
   }
 
   if (isLoading) {
-    return <Loader />
+    return <Loader message="Cargando..." />
   }
 
   if (isError) {
