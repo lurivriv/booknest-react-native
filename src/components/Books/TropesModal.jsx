@@ -7,7 +7,7 @@ import { Error } from "../Error.jsx"
 import { CustomButton } from "../CustomButton.jsx"
 
 export const TropesModal = ({ visible, onClose, selectedTropes, setSelectedTropes }) => {
-  const [selectedTropesInModal, setSelectedTropesInModal] = useState(selectedTropes || [])
+  const [selectedTropesInModal, setSelectedTropesInModal] = useState(selectedTropes)
   
   const { data: tropes = [], isLoading, isError } = useGetLiteraryTropesQuery()
 

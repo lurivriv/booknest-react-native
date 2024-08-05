@@ -12,7 +12,7 @@ export const LiteraryTropesSelector = ({ selectedTropes, setSelectedTropes }) =>
   const { data: literaryTropes = [] } = useGetLiteraryTropesQuery()
 
   const handleDeleteTropeSelection = (trope) => {
-    const updatedTropes = selectedTropes.filter(t => t !== trope)
+    const updatedTropes = selectedTropes?.filter(t => t !== trope)
     setSelectedTropes(updatedTropes)
     
     Toast.show({
@@ -42,7 +42,7 @@ export const LiteraryTropesSelector = ({ selectedTropes, setSelectedTropes }) =>
             horizontal
             showsHorizontalScrollIndicator={false}
           >
-            {selectedTropes.slice().reverse().map((trope, index) => (
+            {selectedTropes?.slice().reverse().map((trope, index) => (
               <View style={styles.tropeSelectedContainer} key={index}>
                 <Text style={styles.tropeSelectedText}>{trope}</Text>
                 <CustomButton
@@ -60,7 +60,7 @@ export const LiteraryTropesSelector = ({ selectedTropes, setSelectedTropes }) =>
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
         literaryTropes={literaryTropes}
-        selectedTropes={selectedTropes}
+        selectedTropes={selectedTropes || []}
         setSelectedTropes={setSelectedTropes}
       />
     </View>
